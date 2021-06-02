@@ -22,19 +22,18 @@ class lab04():
         print("")
 
     def plot(self, x, y, color, method, lineStyle='', markerScale = 5):
-        plt.plot(self.t, y, color=color, label = method, marker='h', ms = markerScale, ls=lineStyle)
-        plt.xlabel="X Axis"; plt.ylabel="Y Axis"
-        
+        plt.plot(x, y, color=color, label = method, marker='h', ms = markerScale, ls=lineStyle)
 
     def f(self, t, y):      # Функция для расчетов
         return (t/(1+t**2))*y
+
     def realf(self, t, plot=False):        # Функция реальных значений
         if(plot):
             tx = np.linspace(self.t0, self.T, 100)
             y = [0]*100
             for i in range(100):
                 y[i] = sqrt(1+tx[i]**2)
-            #self.plot()
+            self.plot(tx, y, "blue", "Реальное значение", '-', 0)
         return sqrt(1+t**2)
 
     def explicit_Euler(self, output=True, plot=True):
@@ -59,7 +58,7 @@ class lab04():
         if(output):
             self.output(y, "Метод Эйлера-Коши", E)
         if(plot):
-            self.plot(self.t, y, "violet", "Метод Эйлера-Коши")
+            self.plot(self.t, y, "violet", "Метод Эйлера-Коши", markerScale=10)
         return y
 
     def improved_Euler(self, output=True, plot=True):
@@ -70,9 +69,9 @@ class lab04():
             E[i+1] = abs(self.realf(self.t[i]) - y[i])
         E = max(E)
         if(output):
-            self.output(y, "Усовершенствованный метод Эйлера", E)
+            self.output(y, 'Усовершенствованный метод Эйлера', E)
         if(plot):
-            self.plot(self.t, y, "cyan", "Усовершенствованный метод Эйлера")
+            self.plot(self.t, y, "cyan", "Усовершенствованный метод Эйлера", markerScale=8)
         return y
 
     def Runge_Kutta_p4(self, output=True, plot=True):
@@ -99,6 +98,10 @@ def main():
     tasks.Euler_Cauchy()
     tasks.improved_Euler()
     tasks.Runge_Kutta_p4()
+    plt.xlabel("X Axis"); plt.ylabel("Y, Axis")
+    plt.legend()
     plt.show()
+
+
 if __name__ == "__main__":
     main()
