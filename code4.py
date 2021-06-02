@@ -35,7 +35,7 @@ class lab04():
         if(output):
             self.output(y, "Явный метод Эйлера", E)
         return y
-        
+
     def Euler_Cauchy(self, output=True):
         y = [self.y0]*self.n; E = [0]*self.n
         for i in range(self.n-1):
@@ -47,6 +47,16 @@ class lab04():
             self.output(y, "Метод Эйлера-Коши", E)
         return y
 
+    def improved_Euler(self, output=True):
+        y = [self.y0]*self.n; E = [0]*self.n
+        for i in range(self.n-1):
+            y_1_2 = y[i] + self.f(self.t[i], y[i])*self.h/2
+            y[i+1] = y[i] + self.h * self.f(self.t[i]+self.h/2, y_1_2)
+            E[i+1] = abs(self.realf(self.t[i]) - y[i])
+        E = max(E)
+        if(output):
+            self.output(y, "Усовершенствованный метод Эйлера", E)
+        return y
 
 
 
@@ -54,10 +64,8 @@ def main():
     tasks = lab04()
     tasks.explicit_Euler()
     tasks.Euler_Cauchy()
+    tasks.improved_Euler()
 
-    #Значения явным методом Эйлера расчитаны неверно
-    #A = [1]*10
-    #print(A)
     #plt.plot(t)
     #plt.show()
 
