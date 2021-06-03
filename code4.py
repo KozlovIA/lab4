@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from math import e, exp, pi, sqrt
-from array import *
+from math import e, exp, inf, pi, sqrt
+import sys
 
 
 class lab04():
@@ -79,11 +79,12 @@ class lab04():
             self.plot(self.t, y, "violet", "Метод Эйлера-Коши", markerScale=10)
         return y
 
-    def improved_Euler(self, output=True, plot=True):
+    def improved_Euler(self, output=True, plot=True, h=0):
         y = [self.y0]*self.n; E = [0]*self.n
+        if h==0: h = self.h
         for i in range(self.n-1):
-            y_1_2 = y[i] + self.f(self.t[i], y[i])*self.h/2
-            y[i+1] = y[i] + self.h * self.f(self.t[i]+self.h/2, y_1_2)
+            y_1_2 = y[i] + self.f(self.t[i], y[i])*h/2
+            y[i+1] = y[i] + h * self.f(self.t[i]+h/2, y_1_2)
             E[i+1] = abs(self.realf(self.t[i]) - y[i])
         E = max(E)
         if(output):
@@ -183,10 +184,12 @@ class lab04():
             self.plot(self.t, y, "red", "Метод Рунге-Кутты 4-го порядка")
         return y
 
-    def Runge_rule(self, y, p=3): # R_K only
+    def Runge_rule(self, y, h, p=3):
+        self.__init__(n=self.n-1, index_h=2, t0=self.t0, T=self.T, y0=self.y0)
         if(p==3):
-            self.__init__(n=self.n-1, index_h=2, t0=self.t0, T=self.T, y0=self.y0)
             y_2h = self.Runge_Kutta_p3(False, False, False)
+        if(p==2):
+            y_2h = self.improved_Euler(False, False, h = h)
         Runge_err = [0]*len(y)
         for i in range(len(y)):
             Runge_err[i] = (y_2h[i]-y[i])/(2**p-1)
@@ -231,11 +234,42 @@ class lab04():
             self.plot(self.t, y, "red", "Метод Рунге-Кутты 3-го порядка", markerScale=3)
         return y
 
+    def improved_Euler_eps(self, output=True, plot=True, eps=0):
+        y = [self.y0]*10**8; E = [0]*self.n; t=self.t0;  i=0; fy = [0]*100; h = self.h; error = 1; first = True; k = 0
+        while t <= self.T:
+            error = 1
+            while abs(error) > eps:
+                y_1_2 = y[i] + self.f(t, y[i])*h/2
+                y[i+1] = y[i] + h * self.f(t+h/2, y_1_2)
+                if first:
+                    h = h/2
+                jt = t + h
+                for j in range(2):
+                    y_1_2 = y[i+j] + self.f(t, y[i+j])*h/2
+                    y[i+j+1] = y[i+j] + h * self.f(t+h/2, y_1_2)
+                    jt=jt+h
+                err = self.Runge_rule([y[i+2]], h=h, p=2); error = err[0]
+                if abs(error) > eps and first == False:
+                    h = h/2
+                first = False
+            if 1:#k % 10000 == 0:
+                print(k, "__", y[i], y[i+1], y[i+2], y[i+3], "h =", h, "t =", t)
+                y = [y[i+2]]*10**8
+                #print(y[0])
+            #sys.exit()
+            t = t + h
+            i = i+2
+            k = k + 1
+        if(output):
+            self.output(y, 'Усовершенствованный метод Эйлера', E)
+        if(plot):
+            self.plot(self.t, y, "cyan", "Усовершенствованный метод Эйлера", markerScale=8)
+        return y
 
 def main():
     tasks = lab04()
     #inp = input("Введите номер задания (1, 2): ")
-    inp = '2'
+    inp = '3'
     if(inp == '1'):
         tasks.realf(0, True)
         tasks.explicit_Euler()
@@ -255,6 +289,10 @@ def main():
         plt.xlabel("X Axis"); plt.ylabel("Y, Axis")
         plt.legend()
         plt.show()
+    if(inp == '3'):
+        tasks.__init__(n=4, T=2)
+        tasks.improved_Euler_eps(False, False, eps = 10**-6)
+    print("Finish")
 
 if __name__ == "__main__":
     main()
