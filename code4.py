@@ -5,9 +5,9 @@ from array import *
 
 
 class lab04():
-    def __init__(self, n = 10, t0 = 0, T = 2, y0 = 1, h=0):
+    def __init__(self, n = 10, t0 = 0, T = 2, y0 = 1, h=0, index_h=1):
         self.n = n+1
-        self.h = (T-t0)/10
+        self.h = index_h*(T-t0)/n
         self.T = T
         self.t0 = t0
         self.y0 = y0
@@ -21,10 +21,15 @@ class lab04():
             print(i, "\t%0.1f" % self.t[i], "\t%0.16f" % self.realf(self.t[i]), "\t%0.16f" % y[i], sep="")
         print("")
 
-    def output_2(self, y, method):        # Вывод данных
-        print("Метод: ", method, "\n№\tt\ty")
-        for i in range(len(y)):
-            print(i, "\t%0.2f" % self.t[i], "\t%0.2f" % y[i], sep="")
+    def output_2(self, y, method, Runge_rule=0):        # Вывод данных
+        if(Runge_rule != 0):
+            print("Метод: ", method, "Погрешность метода: ", max(Runge_rule), "\n№\tt\ty\t\tПогреность по правилу Рунге")
+            for i in range(len(y)):
+                print(i, "\t%0.2f" % self.t[i], "\t%0.2f" % y[i], "\t\t", Runge_rule[i], sep="")
+        else:
+            print("Метод: ", method, "\n№\tt\ty")
+            for i in range(len(y)):
+                print(i, "\t%0.2f" % self.t[i], "\t%0.2f" % y[i], sep="")
         print("")
 
     def plot(self, x, y, color, method, lineStyle='', markerScale = 5):
@@ -99,16 +104,18 @@ class lab04():
     def f_2(self, t, y):
         return -35*y-5.5*exp(-2*t)-3*t
     
-    def Runge_Kutta_p3(self, output=True, plot=True):
+    def Runge_Kutta_p3(self, output=True, plot=True, Runge_rule=False):
         y = [self.y0]*self.n; E = [0]*self.n
-        print(y)
         for i in range(self.n-1):
             k1 = self.f_2(self.t[i], y[i])
             k2 = self.f_2(self.t[i]+self.h/2, y[i]+self.h*k1/2)
             k3 = self.f_2(self.t[i] + self.h, y[i] - self.h*k1 + 2*self.h*k2)
             y[i+1] = y[i] + self.h/6 * (k1 + 4*k2 + k3)
         if(output):
-            self.output_2(y, "Метод Рунге-Кутты 3-го порядка")
+            if(Runge_rule):
+                self.output_2(y, "Метод Рунге-Кутты 3-го порядка", self.Runge_rule(y))
+            else:
+                self.output_2(y, "Метод Рунге-Кутты 3-го порядка")
         if(plot):
             self.plot(self.t, y, "red", "Метод Рунге-Кутты 3-го порядка")
         return y
@@ -127,6 +134,18 @@ class lab04():
             self.plot(self.t, y, "red", "Метод Рунге-Кутты 4-го порядка")
         return y
 
+    def Runge_rule(self, y, p=3):
+        if(p==3):
+            self.__init__(n=self.n-1, index_h=2, t0=self.t0, T=self.T, y0=self.y0)
+            y_2h = self.Runge_Kutta_p3(False, False, False)
+            print("y_2h", y_2h, "\ny", y)
+        Runge_err = [0]*self.n
+        for i in range(self.n):
+            Runge_err[i] = (y[i]-y_2h[i])/(2**p-1)
+        self.__init__(n=self.n-1, index_h=1, t0=self.t0, T=self.T, y0=self.y0)
+        return Runge_err
+
+
 
 def main():
     tasks = lab04()
@@ -143,8 +162,10 @@ def main():
         plt.show()
     if(inp == '2'):
         tasks.__init__(T=1.5, y0=-5)
-        tasks.Runge_Kutta_p3()
-        tasks.Runge_Kutta_p4_1()
+        #tasks.Runge_Kutta_p3()
+        tasks.__init__(n=5, T=1.5, y0=-5)
+        tasks.Runge_Kutta_p3(plot=False, Runge_rule=True)
+
         plt.xlabel("X Axis"); plt.ylabel("Y, Axis")
         plt.legend()
         plt.show()
