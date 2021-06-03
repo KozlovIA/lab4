@@ -138,7 +138,6 @@ class lab04():
         if(p==3):
             self.__init__(n=self.n-1, index_h=2, t0=self.t0, T=self.T, y0=self.y0)
             y_2h = self.Runge_Kutta_p3(False, False, False)
-            print("y_2h", y_2h, "\ny", y)
         Runge_err = [0]*self.n
         for i in range(self.n):
             Runge_err[i] = (y[i]-y_2h[i])/(2**p-1)
@@ -149,8 +148,8 @@ class lab04():
 
 def main():
     tasks = lab04()
-    #inp = input("Введите номер задания (1, 2): ")
-    inp = '2'
+    inp = input("Введите номер задания (1, 2): ")
+    #inp = '2'
     if(inp == '1'):
         tasks.realf(0, True)
         tasks.explicit_Euler()
@@ -162,7 +161,7 @@ def main():
         plt.show()
     if(inp == '2'):
         tasks.__init__(T=1.5, y0=-5)
-        #tasks.Runge_Kutta_p3()
+        tasks.Runge_Kutta_p3()
         tasks.__init__(n=5, T=1.5, y0=-5)
         tasks.Runge_Kutta_p3(plot=False, Runge_rule=True)
 
