@@ -138,7 +138,7 @@ class lab04():
                 plot = True
             else:
                 if(output):
-                    self.output_2(y, "Метод Рунге-Кутты 3-го порядка", self.Runge_rule(y))
+                    self.output_2(y, "Метод Рунге-Кутты 3-го порядка", self.Runge_rule(y, self.h))
         else:
             if(output):
                 self.output_2(y, "Метод Рунге-Кутты 3-го порядка")
@@ -164,7 +164,7 @@ class lab04():
                         k3 = self.f_2(self.t[i] + self.h/2, y[i] + (self.h/2)*k2)
                         k4 = self.f_2(self.t[i] + self.h, y[i] + self.h*k3)
                         y[i+1] = y[i] + self.h/6 * (k1 + 2*k2 + 2*k3 + k4)
-                    R = self.Runge_rule(y)
+                    R = self.Runge_rule(y, self.h)
                     for i in range(len(R)):
                         R[i] = abs(R[i])
                     if max(R) <= eps or self.n > 10**7:
@@ -176,7 +176,7 @@ class lab04():
                         self.__init__(n=(self.n-1)*10, t0=self.t0, T=self.T, y0=self.y0)
             else:
                 if(output):
-                    self.output_2(y, "Метод Рунге-Кутты 4-го порядка", self.Runge_rule(y))
+                    self.output_2(y, "Метод Рунге-Кутты 4-го порядка", self.Runge_rule(y, self.h))
         else:
             if(output):
                 self.output_2(y, "Метод Рунге-Кутты 4-го порядка")
@@ -190,9 +190,10 @@ class lab04():
             y_2h = self.Runge_Kutta_p3(False, False, False)
         if(p==2):
             y_2h = self.improved_Euler(False, False, h = h)
-        Runge_err = [0]*len(y)
-        for i in range(len(y)):
-            Runge_err[i] = (y_2h[i]-y[i])/(2**p-1)
+        Runge_err = [0]*len(y_2h)
+        #print(len(Runge_err), len(y_2h), len(y))
+        for i in range(int(len(y)/2)):
+            Runge_err[i] = (y_2h[i]-y[i*2])/(2**p-1)
         self.__init__(n=self.n-1, index_h=1, t0=self.t0, T=self.T, y0=self.y0)
         return Runge_err
 
@@ -214,7 +215,7 @@ class lab04():
                         k2 = self.f_2(self.t[i]+self.h/2, y[i]+self.h*k1/2)
                         k3 = self.f_2(self.t[i] + self.h, y[i] - self.h*k1 + 2*self.h*k2)
                         y[i+1] = y[i] + self.h/6 * (k1 + 4*k2 + k3)
-                    R = self.Runge_rule(y)
+                    R = self.Runge_rule(y, self.h)
                     for i in range(len(R)):
                         R[i] = abs(R[i])
                     if max(R) <= eps or self.n > 10**7:
@@ -241,8 +242,8 @@ class lab04():
             while abs(error) > eps:
                 y_1_2 = y[i] + self.f(t, y[i])*h/2
                 y[i+1] = y[i] + h * self.f(t+h/2, y_1_2)
-                if first:
-                    h = h/2
+                #if first:
+                h = h/2
                 jt = t + h
                 for j in range(2):
                     y_1_2 = y[i+j] + self.f(t, y[i+j])*h/2
@@ -282,10 +283,10 @@ def main():
     if(inp == '2'):
         tasks.__init__(T=1.5, y0=-5)
         #tasks.Runge_Kutta_p3()
-        tasks.__init__(n=5, T=1.5, y0=-5)
-        #tasks.Runge_Kutta_p3(plot=False, Runge_rule=True)
-        tasks.__init__(n=10, T=1.5, y0=-5)
-        tasks.Runge_Kutta_p3_1(plot=True, Runge_rule=True, eps=10**-4)
+        tasks.__init__(n=100, T=1.5, y0=-5)
+        tasks.Runge_Kutta_p3(plot=False, Runge_rule=True)
+        tasks.__init__(n=100, T=1.5, y0=-5)
+        #tasks.Runge_Kutta_p4_1(plot=True, Runge_rule=True)#, eps=10**-4)
         plt.xlabel("X Axis"); plt.ylabel("Y, Axis")
         plt.legend()
         plt.show()
