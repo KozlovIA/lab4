@@ -145,7 +145,7 @@ class lab04():
             self.plot(self.t, y, "red", "Метод Рунге-Кутты 3-го порядка")
         return y
 
-    def Runge_Kutta_p4_1(self, output=True, plot=True):
+    def Runge_Kutta_p4_1(self, output=True, plot=True, Runge_rule=False, eps=0):
         y = [self.y0]*self.n; E = [0]*self.n
         for i in range(self.n-1):
             k1 = self.f_2(self.t[i], y[i])
@@ -153,8 +153,32 @@ class lab04():
             k3 = self.f_2(self.t[i] + self.h/2, y[i] + (self.h/2)*k2)
             k4 = self.f_2(self.t[i] + self.h, y[i] + self.h*k3)
             y[i+1] = y[i] + self.h/6 * (k1 + 2*k2 + 2*k3 + k4)
-        if(output):
-            self.output_2(y, "Метод Рунге-Кутты 4-го порядка")
+        if(Runge_rule):
+            if eps > 0:
+                while True:
+                    y = [self.y0]*self.n
+                    for i in range(0, self.n-1):
+                        k1 = self.f_2(self.t[i], y[i])
+                        k2 = self.f_2(self.t[i] + self.h/2, y[i] + (self.h/2)*k1)
+                        k3 = self.f_2(self.t[i] + self.h/2, y[i] + (self.h/2)*k2)
+                        k4 = self.f_2(self.t[i] + self.h, y[i] + self.h*k3)
+                        y[i+1] = y[i] + self.h/6 * (k1 + 2*k2 + 2*k3 + k4)
+                    R = self.Runge_rule(y)
+                    for i in range(len(R)):
+                        R[i] = abs(R[i])
+                    if max(R) <= eps or self.n > 10**7:
+                        if(output):
+                            self.output_2(y, "Метод Рунге-Кутты 4-го порядка", max(R), self.h)
+                        break
+                    else:
+                        print(max(R), self.h)
+                        self.__init__(n=(self.n-1)*10, t0=self.t0, T=self.T, y0=self.y0)
+            else:
+                if(output):
+                    self.output_2(y, "Метод Рунге-Кутты 4-го порядка", self.Runge_rule(y))
+        else:
+            if(output):
+                self.output_2(y, "Метод Рунге-Кутты 4-го порядка")
         if(plot):
             self.plot(self.t, y, "red", "Метод Рунге-Кутты 4-го порядка")
         return y
@@ -190,7 +214,7 @@ class lab04():
                     R = self.Runge_rule(y)
                     for i in range(len(R)):
                         R[i] = abs(R[i])
-                    if max(R) <= eps or self.n > 10**6:
+                    if max(R) <= eps or self.n > 10**7:
                         if(output):
                             self.output_2(y, "Метод Рунге-Кутты 3-го порядка", max(R), self.h)
                         break
@@ -204,7 +228,7 @@ class lab04():
             if(output):
                 self.output_2(y, "Метод Рунге-Кутты 3-го порядка")
         if(plot):
-            self.plot(self.t, y, "red", "Метод Рунге-Кутты 3-го порядка")
+            self.plot(self.t, y, "red", "Метод Рунге-Кутты 3-го порядка", markerScale=3)
         return y
 
 
@@ -227,7 +251,7 @@ def main():
         tasks.__init__(n=5, T=1.5, y0=-5)
         #tasks.Runge_Kutta_p3(plot=False, Runge_rule=True)
         tasks.__init__(n=10, T=1.5, y0=-5)
-        tasks.Runge_Kutta_p3_1(plot=False, Runge_rule=True, eps=10**-4)
+        tasks.Runge_Kutta_p3_1(plot=True, Runge_rule=True, eps=10**-4)
         plt.xlabel("X Axis"); plt.ylabel("Y, Axis")
         plt.legend()
         plt.show()
